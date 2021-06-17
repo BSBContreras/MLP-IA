@@ -111,6 +111,11 @@ public class Matrix {
         return exp;
     }
 
+    public static void println(double[][] matrix, String name) {
+        System.out.println(name + " | num_rows: " + matrix.length + ", num_columns: " + matrix[0].length);
+        println(matrix);
+    }
+
     public static void randomMatrix(double[][] matrix) {
         for(int i = 0; i < matrix.length; i++)
             for(int j = 0; j < matrix[i].length; j++)
@@ -231,7 +236,7 @@ public class Matrix {
 
         for(int i = 0; i < new_matrix.length; i++)
             for(int j = 0; j < new_matrix[i].length; j++)
-                new_matrix[i][j] = matrix_a[i][j] + matrix_a[i][j];
+                new_matrix[i][j] = matrix_a[i][j] + matrix_b[i][j];
 
         return new_matrix;
     }

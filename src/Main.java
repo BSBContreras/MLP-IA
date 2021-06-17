@@ -46,6 +46,24 @@ class Main {
     public static void main(String[] args) {
         System.out.println("Hello MLP!");
 
+//        Function activation = new BipolarSigmoidFunction();
+//        Function d_activation = new BipolarSigmoidFunctionDerivative();
 
+        Function activation = new BipolarFunction(0);
+        Function d_activation = new BipolarFunctionDerivate();
+
+        Model_test model = MLP_Test_2.architecture(2, 2, 1, activation, d_activation);
+
+        double[][] and_gate = {
+                { 0, 0, 0},
+                { 0, 1, 0},
+                { 1, 0, 0},
+                { 1, 1, 1}
+        };
+
+        double[][] new_mat = new double[20][20];
+        Matrix.randomMatrix(new_mat);
+
+        MLP_Test_2.backpropagation(model, and_gate, 0.1, 0.001);
     }
 }
