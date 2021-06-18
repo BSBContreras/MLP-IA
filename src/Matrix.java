@@ -111,11 +111,6 @@ public class Matrix {
         return exp;
     }
 
-    public static void println(double[][] matrix, String name) {
-        System.out.println(name + " | num_rows: " + matrix.length + ", num_columns: " + matrix[0].length);
-        println(matrix);
-    }
-
     public static void randomMatrix(double[][] matrix) {
         for(int i = 0; i < matrix.length; i++)
             for(int j = 0; j < matrix[i].length; j++)
@@ -260,6 +255,26 @@ public class Matrix {
             }
             System.out.println("]");
         }
+    }
+
+    public static void println(double[][] matrix, String name) {
+        System.out.println(name + " | num_rows: " + matrix.length + ", num_columns: " + matrix[0].length);
+        println(matrix);
+    }
+
+    public static <T> void println(T[][] matrix) {
+        for(T[] rows : matrix) {
+            System.out.print("[ ");
+            for (T column : rows) {
+                System.out.print(column + " ");
+            }
+            System.out.println("]");
+        }
+    }
+
+    public static <T> void println(T[][] matrix, String name) {
+        System.out.println(name + " | num_rows: " + matrix.length + ", num_columns: " + matrix[0].length);
+        println(matrix);
     }
 
     @Deprecated
