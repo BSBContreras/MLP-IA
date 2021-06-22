@@ -1,21 +1,5 @@
 public class Matrix {
 
-    @Deprecated
-    public static double[][] multTermByTerm(double[][] MatA, double[][] MatB) {
-        // Verificar se tem o mesmo tamanho
-
-        int NumLines = MatA.length;
-        int NumColumns = MatA[0].length;
-
-        double [][] mult = new double[NumLines][NumColumns];
-
-        for(int i = 0; i < NumLines; i++)
-            for(int j = 0; j < NumColumns; j++)
-                mult[i][j] = MatA[i][j] * MatB[i][j];
-
-        return mult;
-    }
-
     public static double[][] multiplyTermByTerm(double[][] MatA, double[][] MatB) {
         // Verificar se tem o mesmo tamanho
 
@@ -52,7 +36,7 @@ public class Matrix {
 
         int k = 0;
         for(int i = init; i <= end; i++) {
-            for (int j = 0; j < mat[i].length; j++) {
+            for(int j = 0; j < mat[i].length; j++) {
                 new_mat[k][j] = mat[i][j];
             }
             k++;
@@ -61,24 +45,24 @@ public class Matrix {
         return  new_mat;
     }
 
-    public static double[][] vectorAsMatrixColumn(double[] vec) {
+    public static double[][] vectorAsMatrixColumn(double[] vector) {
 
-        double[][] mat = new double[vec.length][1];
+        double[][] matrix = new double[vector.length][1];
 
-        for(int i = 0; i < vec.length; i++)
-            mat[i][0] = vec[i];
+        for(int i = 0; i < vector.length; i++)
+            matrix[i][0] = vector[i];
 
-        return mat;
+        return matrix;
     }
 
-    public static double[][] vectorAsMatrixRow(double[] vec) {
+    public static double[][] vectorAsMatrixRow(double[] vector) {
 
-        double[][] mat = new double[1][vec.length];
+        double[][] matrix = new double[1][vector.length];
 
-        for(int i = 0; i < vec.length; i++)
-            mat[0][i] = vec[i];
+        for(int i = 0; i < vector.length; i++)
+            matrix[0][i] = vector[i];
 
-        return mat;
+        return matrix;
     }
 
 
@@ -96,21 +80,6 @@ public class Matrix {
         return exp;
     }
 
-    @Deprecated
-    public static double[][] matrixInternalExp(double[][] Mat, double value) {
-
-        int NumLines = Mat.length;
-        int NumColumns = Mat[0].length;
-
-        double [][] exp = new double[NumLines][NumColumns];
-
-        for(int i = 0; i < NumLines; i++)
-            for(int j = 0; j < NumColumns; j++)
-                exp[i][j] = Math.pow(Mat[i][j], value);
-
-        return exp;
-    }
-
     public static void randomMatrix(double[][] matrix) {
         for(int i = 0; i < matrix.length; i++)
             for(int j = 0; j < matrix[i].length; j++)
@@ -119,59 +88,37 @@ public class Matrix {
                                 (Math.random() < 0.5 ? 1 : -1);
     }
 
-    /**
-     *
-     * Implementacao errada
-     *
-     * **/
-    @Deprecated
-    public static double[][] matrixMult(double[][] MatA, double[][] MatB) {
+    public static double[][] multiply(double[][] matrix_a, double[][] matrix_b) {
 
-        if (MatA.length == 0 || MatA[0].length == 0
-                || MatB.length == 0 || MatB[0].length == 0 ) {
-            System.out.println("Matriz Vazia");
-        }
-
-        if (MatA[0].length != MatB.length) {
-            System.out.println("Matrizes não podem ser multiplicadas");
-        }
-
-        int NumLines = MatA.length;
-        int NumColumns = MatB[0].length;
-
-        double[][] MatR = new double[NumLines][NumColumns];
-
-        for(int i = 0; i < NumLines; i++) {
-            for(int j = 0; j < NumColumns; j++) {
-                for(int n = 0; n < NumLines || n < NumColumns; n++) {
-                    MatR[i][j] += MatA[i][n] * MatB[n][j];
-                }
-            }
-        }
-
-        return MatR;
-    }
-
-    public static double[][] multiply(double[][] firstMatrix, double[][] secondMatrix) {
-
-        double[][] result = new double[firstMatrix.length][secondMatrix[0].length];
+        double[][] result = new double[matrix_a.length][matrix_b[0].length];
 
         for (int row = 0; row < result.length; row++) {
             for (int col = 0; col < result[row].length; col++) {
-                result[row][col] = multiplyCell(firstMatrix, secondMatrix, row, col);
+                result[row][col] = multiplyCell(matrix_a, matrix_b, row, col);
             }
         }
 
         return result;
     }
 
-    private static double multiplyCell(double[][] firstMatrix, double[][] secondMatrix, int row, int col) {
+    private static double multiplyCell(double[][] maitrix_a, double[][] matrix_b, int row, int col) {
 
         double cell = 0;
-        for (int i = 0; i < secondMatrix.length; i++) {
-            cell += firstMatrix[row][i] * secondMatrix[i][col];
+        for (int i = 0; i < matrix_b.length; i++) {
+            cell += maitrix_a[row][i] * matrix_b[i][col];
         }
         return cell;
+    }
+
+    public static double[][] multiplyConstant(double[][] matrix, double constant) {
+
+        double[][] new_matrix = new double[matrix.length][matrix[0].length];
+
+        for(int i = 0; i < new_matrix.length; i++)
+            for(int j = 0; j < new_matrix[i].length; j++)
+                new_matrix[i][j] = matrix[i][j] * constant;
+
+        return new_matrix;
     }
 
     public static double[][] applyFunction(double[][] matrix, Function function) {
@@ -185,38 +132,23 @@ public class Matrix {
         return result;
     }
 
-    @Deprecated
-    public static double matrixInternalSum(double[][] Mat) {
+    public static double internalSum(double[][] matrix) {
 
         double sum = 0.0;
 
-        int NumLines = Mat.length;
-        int NumColumns = Mat[0].length;
+        int NumLines = matrix.length;
+        int NumColumns = matrix[0].length;
 
         for(int i = 0; i < NumLines; i++)
             for(int j = 0; j < NumColumns; j++)
-                sum += Mat[i][j];
-
-        return sum;
-    }
-
-    public static double internalSum(double[][] Mat) {
-
-        double sum = 0.0;
-
-        int NumLines = Mat.length;
-        int NumColumns = Mat[0].length;
-
-        for(int i = 0; i < NumLines; i++)
-            for(int j = 0; j < NumColumns; j++)
-                sum += Mat[i][j];
+                sum += matrix[i][j];
 
         return sum;
     }
 
     public static double[][] transpose(double[][] matrix) {
 
-        double matrix_t[][] = new double[matrix[0].length][matrix.length];
+        double[][] matrix_t = new double[matrix[0].length][matrix.length];
 
         for(int i = 0; i < matrix_t.length; i++)
             for(int j = 0; j < matrix_t[i].length; j++)
@@ -227,81 +159,13 @@ public class Matrix {
 
     public static double[][] sum(double[][] matrix_a, double[][] matrix_b) {
 
-        double new_matrix[][] = new double[matrix_a.length][matrix_a[0].length];
+        double[][] new_matrix = new double[matrix_a.length][matrix_a[0].length];
 
         for(int i = 0; i < new_matrix.length; i++)
             for(int j = 0; j < new_matrix[i].length; j++)
                 new_matrix[i][j] = matrix_a[i][j] + matrix_b[i][j];
 
         return new_matrix;
-    }
-
-    public static double[][] multiplyConstant(double[][] matrix, double constant) {
-
-        double new_matrix[][] = new double[matrix.length][matrix[0].length];
-
-        for(int i = 0; i < new_matrix.length; i++)
-            for(int j = 0; j < new_matrix[i].length; j++)
-                new_matrix[i][j] = matrix[i][j] * constant;
-
-        return new_matrix;
-    }
-
-    public static void println(double[][] matrix) {
-        for(double[] rows : matrix) {
-            System.out.print("[ ");
-            for (double column : rows) {
-                System.out.print(column + " ");
-            }
-            System.out.println("]");
-        }
-    }
-
-    public static void println(double[][] matrix, String name) {
-        System.out.println(name + " | num_rows: " + matrix.length + ", num_columns: " + matrix[0].length);
-        println(matrix);
-    }
-
-    public static <T> void println(T[][] matrix) {
-        for(T[] rows : matrix) {
-            System.out.print("[ ");
-            for (T column : rows) {
-                System.out.print(column + " ");
-            }
-            System.out.println("]");
-        }
-    }
-
-    public static <T> void println(T[][] matrix, String name) {
-        System.out.println(name + " | num_rows: " + matrix.length + ", num_columns: " + matrix[0].length);
-        println(matrix);
-    }
-
-    @Deprecated
-    public static void printMatrix(double[][] matrix) {
-        for(int i = 0; i < matrix.length; i++) {
-            System.out.print("[ ");
-            for(int j = 0; j < matrix[i].length; j++) {
-                System.out.print(matrix[i][j] + " ");
-            }
-            System.out.println("]");
-        }
-    }
-
-    @Deprecated
-    public static double[][] matrixMinus(double[][] MatA, double[][] MatB) {
-        // Verificar se tem o mesmo tamanho
-
-        int NumLines = MatA.length;
-        int NumColumns = MatA[0].length;
-
-        double [][] minus = new double[NumLines][NumColumns];
-
-        for(int i = 0; i < NumLines; i++)
-            for(int j = 0; j < NumColumns; j++)
-                minus[i][j] = MatA[i][j] - MatB[i][j];
-
-        return minus;
     }
 
     public static double[][] minus(double[][] matrix_a, double[][] matrix_b) {
@@ -317,5 +181,20 @@ public class Matrix {
                 minus[i][j] = matrix_a[i][j] - matrix_b[i][j];
 
         return minus;
+    }
+
+    public static void println(double[][] matrix) {
+        for(double[] rows : matrix) {
+            System.out.print("[ ");
+            for (double column : rows) {
+                System.out.print(column + " ");
+            }
+            System.out.println("]");
+        }
+    }
+
+    public static void println(double[][] matrix, String name) {
+        System.out.println(name + " | num_rows: " + matrix.length + ", num_columns: " + matrix[0].length);
+        println(matrix);
     }
 }

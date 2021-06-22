@@ -1,65 +1,50 @@
-class Model {
+public class Model {
 
-    private Function activation;
-    private Function d_activation;
-    private double[][] hidden;
-    private double[][] output;
+    private final Function activation;
+    private final Function d_activation;
+    private double[][] hidden_weight;
+    private double[][] output_weight;
+    private final int input_size;
+    private final int hidden_size;
 
-    public Model(
-            Function activation,
-            Function d_activation,
-            double[][] hidden,
-            double[][] output
-    ) {
+    public Model(Function activation, Function d_activation, double[][] hidden_weight, double[][] output_weight) {
         this.activation = activation;
         this.d_activation = d_activation;
-        this.hidden = hidden;
-        this.output = output;
+        this.hidden_weight = hidden_weight;
+        this.output_weight = output_weight;
+        this.input_size = hidden_weight.length - 1;
+        this.hidden_size = output_weight.length -1;
     }
 
-    @Deprecated
-    public Function getActivation() {
-        return activation;
+    public void setHiddenWeight(double[][] hidden_weight) {
+        this.hidden_weight = hidden_weight;
+    }
+
+    public void setOutputWeight(double[][] output_weight) {
+        this.output_weight = output_weight;
     }
 
     public Function getActivationFunction() {
         return activation;
     }
 
-    @Deprecated
-    public Function getdActivation() {
+    public Function getActivationFunctionDerivative() {
         return d_activation;
     }
 
-    public Function getActivationFunctionDerivate() {
-        return d_activation;
+    public double[][] getHiddenWeight() {
+        return hidden_weight;
     }
 
-    public double[][] getHidden() {
-        return hidden;
-    }
-
-    public double[][] getOutput() {
-        return output;
-    }
-
-    public void setHidden(double[][] hidden) {
-        this.hidden = hidden;
-    }
-
-    public void setOutput(double[][] output) {
-        this.output = output;
+    public double[][] getOutputWeight() {
+        return output_weight;
     }
 
     public int getInputSize() {
-        return hidden[0].length - 1;
-    }
-
-    public int getOutputSize() {
-        return output.length;
+        return input_size;
     }
 
     public int getHiddenSize() {
-        return hidden.length;
+        return hidden_size;
     }
 }

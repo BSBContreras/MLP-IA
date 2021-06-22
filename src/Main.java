@@ -1,134 +1,138 @@
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 class Main {
 
-    public static void old_mlp() {
-        Function activation = new BipolarFunction(0);
-        Function d_activation = new BipolarFunctionDerivate();
+    public static final String TRAIN_PATH_FILE = "C:\\Users\\BSBCo\\IdeaProjects\\Multi Layer Perceptron\\src\\train.txt";
+    public static final String WEIGHT_PATH_FILE = "C:\\Users\\BSBCo\\IdeaProjects\\Multi Layer Perceptron\\src\\pesos-modelo.txt";
+    public static final String WITH_NOISE = "C:\\Users\\BSBCo\\IdeaProjects\\Multi Layer Perceptron\\src\\com-ruido.txt";
+    public static final String WITH_NOISE_2 = "C:\\Users\\BSBCo\\IdeaProjects\\Multi Layer Perceptron\\src\\com-ruido-2.txt";
 
-        Model model = MLP.architecture(2, 2, 1, activation, d_activation);
-
-        Matrix.printMatrix(model.getHidden());
-        System.out.println();
-        Matrix.printMatrix(model.getOutput());
-        System.out.println();
-
-        double[] x_train = {1, 1};
-        MLP.forward(model, x_train);
-
-        double[][] dataset = {
-                {1, 2, 3},
-                {4, 5, 6},
-                {7, 8, 9},
-                {10, 11, 12},
-        };
-
-        MLP.backpropagation(model, dataset, 0.1, 0.001);
-    }
-
-    public static void old_mlp_2() {
-        Function activation = new BipolarSigmoidFunction();
-        Function d_activation = new BipolarSigmoidFunctionDerivative();
-
-        Model model = MLP_test.architecture(1, 4, 1, activation, d_activation);
-
-        double[] x_train = { 0, 0 };
-        MLP_test.forwardfeed(model, x_train);
-
-        double[][] dataset = {
-                {1, 2, 3},
-                {4, 5, 6},
-                {7, 8, 9},
-                {10, 11, 12},
-        };
-
-        MLP_test.backpropagation(model, dataset, 0.1, 0.001);
-    }
-
-    public static void getDataset(String pathToCsv) {
-
-        List<String[]> rowList = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(pathToCsv))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] lineItems = line.split(",");
-                rowList.add(lineItems);
+    public static void writeMatrix(double[][] matrix, BufferedWriter writer) throws IOException {
+        for(double[] rows : matrix) {
+            for (double column : rows) {
+                writer.write(column + ",");
             }
-        } catch(Exception e){
-            // Handle any I/O problems
+            writer.write("\n");
+        }
+    }
+
+    public static double[][] readMatrix(BufferedReader reader) throws IOException {
+        String line;
+        int num_columns = 0;
+        List<String[]> list = new ArrayList<>();
+        while ((line = reader.readLine()) != null) {
+            if(line.length() == 0) break;
+            String[] row = line.split(",");
+            num_columns = Math.max(num_columns, row.length);
+            list.add(row);
         }
 
-        String out = "";
-
-        double[][] matrix = new double[rowList.size()][70];
-        for(int i = 0; i < rowList.size(); i++) {
-            String[] row = rowList.get(i);
-            for(int j = 0; j < row.length; j++)
-//                out += row[j] + ",";
-                matrix[i][j] = Double.parseDouble(row[j]);
+        double[][] matrix = new double[list.size()][num_columns];
+        for(int i = 0; i < matrix.length; i++) {
+            String[] temp = list.get(i);
+            for(int j = 0; j < matrix[i].length; j++)
+                matrix[i][j] = Double.parseDouble(temp[j]);
         }
 
-//        System.out.println(out);
-        Matrix.println(matrix, "dataset");
+        return matrix;
+    }
 
-//        return matrix_double;
+    public static void printCharacter(double[] data) {
+        for(int i = 0; i < data.length; i++) {
+            if(i % 7 == 0) System.out.println();
+            if (data[i] < 0) {
+                System.out.print(" ");
+            } else {
+                System.out.print("\u2588");
+            }
+        }
+        System.out.println();
+    }
+
+    public static void test(String test_path) {
+        Function activation_function = new BipolarSigmoidFunction();
+        Function derivative_activation_function = new BipolarSigmoidFunctionDerivative();
+
+        Model model = MLP.architecture(63, 30, 7, activation_function, derivative_activation_function);
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(WEIGHT_PATH_FILE));
+            double[][] hidden_weight = readMatrix(reader);
+            double[][] output_weight = readMatrix(reader);
+            model.setHiddenWeight(hidden_weight);
+            model.setOutputWeight(output_weight);
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+            System.exit(0);
+        }
+
+        double[][] dataset;
+
+        try {
+            dataset = readMatrix(new BufferedReader(new FileReader(test_path)));
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+            dataset = new double[1][70];
+            System.exit(0);
+        }
+
+        dataset = Matrix.getSliceColumns(dataset, 0, 62);
+
+        // Modelo treiado com ABCDEJK
+        System.out.println("dataset com ruído");
+        for(double[] row : dataset) {
+            printCharacter(row);
+            NeuronState neuron_state = MLP.forwardfeed(model, row);
+            Matrix.println(neuron_state.getOutput(), "Output");
+        }
+    }
+
+    public static void train(double threshold) {
+        Function activation_function = new BipolarSigmoidFunction();
+        Function derivative_activation_function = new BipolarSigmoidFunctionDerivative();
+
+        Model model = MLP.architecture(63, 30, 7, activation_function, derivative_activation_function);
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(WEIGHT_PATH_FILE));
+            double[][] hidden_weight = readMatrix(reader);
+            double[][] output_weight = readMatrix(reader);
+            model.setHiddenWeight(hidden_weight);
+            model.setOutputWeight(output_weight);
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        double[][] dataset;
+
+        try {
+            dataset = readMatrix(new BufferedReader(new FileReader(TRAIN_PATH_FILE)));
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+            dataset = new double[1][70];
+            System.exit(0);
+        }
+
+        MLP.backpropagation(model, dataset, 0.1, threshold);
+
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(WEIGHT_PATH_FILE));
+            writeMatrix(model.getHiddenWeight(), writer);
+            writer.write("\n");
+            writeMatrix(model.getOutputWeight(), writer);
+            writer.flush();
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+            System.exit(0);
+        }
     }
 
     public static void main(String[] args) {
         System.out.println("Hello MLP!");
 
-        Function activation = new BipolarSigmoidFunction();
-        Function d_activation = new BipolarSigmoidFunctionDerivative();
-
-//        Function activation = new BipolarFunction(0);
-//        Function d_activation = new BipolarFunctionDerivate();
-
-        System.out.println(Double.parseDouble("-1"));
-
-        Model_test model = MLP_Test_2.architecture(2, 3, 1, activation, d_activation);
-
-        double[][] and_gate = {
-                { 0, 0, 0},
-                { 0, 1, 0},
-                { 1, 0, 0},
-                { 1, 1, 1}
-        };
-
-        double[][] xor_gate = {
-                { 0, 0, 1},
-                { 0, 1, 0},
-                { 1, 0, 0},
-                { 1, 1, 1}
-        };
-
-        double[][] or_gate = {
-                { 0, 0, 0},
-                { 0, 1, 1},
-                { 1, 0, 1},
-                { 1, 1, 1}
-        };
-
-//        double[][] dataset = getDataset("C:\\Users\\BSBCo\\IdeaProjects\\Multi Layer Perceptron\\src\\caracteres-limpo.csv");
-        getDataset("C:\\Users\\BSBCo\\IdeaProjects\\Multi Layer Perceptron\\src\\caracteres-limpo.csv");
-
-
-//        Matrix.println(dataset, "dataset");
-
-//        MLP_Test_2.backpropagation(model, xor_gate, 0.1, 0.001);
-
-        Matrix.println(model.getHiddenWeigth(), "getHiddenWeigth()");
-        Matrix.println(model.getOutputWeigth(), "getOutputWeigth()");
-
-        double[] x_test = { 1, 0 };
-        NeuronState state = MLP_Test_2.forwardfeed(model, x_test);
-        Matrix.println(state.getOutput(),"Resposta!");
-
+        train(0.0001);
+        test(WITH_NOISE);
     }
-
-
 }
