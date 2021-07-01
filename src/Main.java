@@ -81,7 +81,7 @@ class Main {
         dataset = Matrix.getSliceColumns(dataset, 0, 62);
 
         // Modelo treiado com ABCDEJK
-        System.out.println("dataset com ruído");
+        System.out.println("dataset: " + test_path);
         for(double[] row : dataset) {
             printCharacter(row);
             NeuronState neuron_state = MLP.forwardfeed(model, row);
@@ -129,10 +129,107 @@ class Main {
         }
     }
 
+    public static int getIndex(double[][] matrix) {
+        int index = 0;
+        for(int i = 0; i < matrix.length; i++)
+            for(int j = 0; j < matrix[i].length; j++)
+                index = matrix[i][j] > matrix[0][index] ? j : index;
+
+        return index;
+    }
+
+    public static double[] getSliceColumns(double[] vector, int init, int end) {
+
+        double[] new_vector = new double[end - init + 1];
+
+        int k = 0;
+        for(int j = init; j <= end; j++) {
+            new_vector[k] = vector[j];
+            k++;
+        }
+
+        return new_vector;
+    }
+
     public static void main(String[] args) {
         System.out.println("Hello MLP!");
 
-        train(0.0001);
-        test(WITH_NOISE);
+        String test_path = WITH_NOISE;
+
+        Function activation_function = new BipolarSigmoidFunction();
+        Function derivative_activation_function = new BipolarSigmoidFunctionDerivative();
+
+        Model model = MLP.architecture(63, 30, 7, activation_function, derivative_activation_function);
+
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(WEIGHT_PATH_FILE));
+            double[][] hidden_weight = readMatrix(reader);
+            double[][] output_weight = readMatrix(reader);
+            model.setHiddenWeight(hidden_weight);
+            model.setOutputWeight(output_weight);
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+            System.exit(0);
+        }
+
+        double[][] dataset;
+
+        try {
+            dataset = readMatrix(new BufferedReader(new FileReader(test_path)));
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+            dataset = new double[1][70];
+            System.exit(0);
+        }
+
+        double[][] answers_dataset;
+
+        try {
+            answers_dataset = readMatrix(new BufferedReader(new FileReader(TRAIN_PATH_FILE)));
+        } catch(Exception e) {
+            System.out.println(e.getMessage());
+            answers_dataset = new double[1][70];
+            System.exit(0);
+        }
+
+        double[][] answers = Matrix.getSliceColumns(Matrix.getSliceRows(answers_dataset, 0, 7), 0, 62);
+        double accurate = 0.0;
+
+        double[][] confusion_matrix = new double[7][7];
+
+        // Modelo treiado com ABCDEJK
+        System.out.println("dataset: " + test_path);
+        for(double[] row : dataset) {
+
+            double[] x_test = getSliceColumns(row, 0, 62);
+            double[] y_test = getSliceColumns(row, 63, 69);
+
+            printCharacter(x_test);
+
+            NeuronState neuron_state = MLP.forwardfeed(model, x_test);
+            Matrix.println(neuron_state.getOutput(), "Output");
+
+            confusion_matrix[getIndex(Matrix.vectorAsMatrixRow(y_test))][getIndex(neuron_state.getOutput())]++;
+
+            if(getIndex(neuron_state.getOutput()) == getIndex(Matrix.vectorAsMatrixRow(y_test))) {
+                System.out.println("Correct!");
+                accurate += 1.0 / dataset.length;
+            } else {
+                System.out.print("Predicted: ");
+                printCharacter(answers[getIndex(neuron_state.getOutput())]);
+                System.out.println();
+
+                System.out.print("Answer: ");
+                printCharacter(answers[getIndex(Matrix.vectorAsMatrixRow(y_test))]);
+
+                System.out.println("Wrong!");
+            }
+
+            System.out.println("--------------------------------------------------------------------------------");
+        }
+
+        System.out.printf("Accurate = %3.2f%%\n", accurate * 100);
+        Matrix.println(confusion_matrix, "Confusion Matrix");
+        System.out.println((int) Math.floor(accurate * dataset.length) + " corrects answers from " + dataset.length + " tests!");
     }
 }
