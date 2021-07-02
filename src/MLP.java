@@ -70,6 +70,7 @@ public class MLP {
         int num_dataset_columns = dataset[0].length;
 
         double squared_error = 2 * threshold;
+        double accurate = 0;
         int counter = 0;
 
         // Definindo conjunto de treinamento
@@ -85,10 +86,15 @@ public class MLP {
         // Condicao de parada
         while(squared_error > threshold) {
             squared_error = 0.0;
+            accurate = 0.0;
 
             for(int i = 0; i < num_dataset_rows; i++) {
 
                 NeuronState neuron_state = forwardfeed(model, x_train[i]);
+
+                if(Main.getIndex(neuron_state.getOutput()) == Main.getIndex(Matrix.vectorAsMatrixRow(y_train[i]))) {
+                    accurate += 1.0 / num_dataset_rows;
+                }
 
                 // Calculando erro
                 double[][] error = Matrix.minus(Matrix.vectorAsMatrixRow(y_train[i]), neuron_state.getOutput());
@@ -179,11 +185,10 @@ public class MLP {
 //            System.out.println("\n -> Calculando erro medio quadrado");
             squared_error = squared_error / num_dataset_rows;
 //            System.out.println("squared_error");
-            System.out.println(squared_error);
-
+            System.out.printf("Epoch = %d", counter);
+            System.out.printf(", Squared Error = %.6f", squared_error);
+            System.out.printf(", Accurate = %3.2f%%\n", accurate * 100);
             counter++;
         }
-
-        System.out.println("counter: " + counter);
     }
 }

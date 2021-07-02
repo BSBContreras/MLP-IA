@@ -1,48 +1,48 @@
 public class Matrix {
 
-    public static double[][] multiplyTermByTerm(double[][] MatA, double[][] MatB) {
+    public static double[][] multiplyTermByTerm(double[][] matrix_a, double[][] matrix_b) {
         // Verificar se tem o mesmo tamanho
 
-        int NumLines = MatA.length;
-        int NumColumns = MatA[0].length;
+        int NumLines = matrix_a.length;
+        int NumColumns = matrix_a[0].length;
 
-        double [][] mult = new double[NumLines][NumColumns];
+        double [][] new_matrix = new double[NumLines][NumColumns];
 
         for(int i = 0; i < NumLines; i++)
             for(int j = 0; j < NumColumns; j++)
-                mult[i][j] = MatA[i][j] * MatB[i][j];
+                new_matrix[i][j] = matrix_a[i][j] * matrix_b[i][j];
 
-        return mult;
+        return new_matrix;
     }
 
-    public static double[][] getSliceColumns(double[][] mat, int init, int end) {
+    public static double[][] getSliceColumns(double[][] matrix, int init, int end) {
 
-        double[][] new_mat = new double[mat.length][end - init + 1];
+        double[][] new_matrix = new double[matrix.length][end - init + 1];
 
-        for(int i = 0; i < mat.length; i++) {
+        for(int i = 0; i < matrix.length; i++) {
             int k = 0;
             for(int j = init; j <= end; j++) {
-                new_mat[i][k] = mat[i][j];
+                new_matrix[i][k] = matrix[i][j];
                 k++;
             }
         }
 
-        return new_mat;
+        return new_matrix;
     }
 
-    public static double[][] getSliceRows(double[][] mat, int init, int end) {
+    public static double[][] getSliceRows(double[][] matrix, int init, int end) {
 
-        double[][] new_mat = new double[end - init + 1][mat[0].length];
+        double[][] new_matrix = new double[end - init + 1][matrix[0].length];
 
         int k = 0;
         for(int i = init; i <= end; i++) {
-            for(int j = 0; j < mat[i].length; j++) {
-                new_mat[k][j] = mat[i][j];
+            for(int j = 0; j < matrix[i].length; j++) {
+                new_matrix[k][j] = matrix[i][j];
             }
             k++;
         }
 
-        return  new_mat;
+        return  new_matrix;
     }
 
     public static double[][] vectorAsMatrixColumn(double[] vector) {
@@ -101,11 +101,11 @@ public class Matrix {
         return result;
     }
 
-    private static double multiplyCell(double[][] maitrix_a, double[][] matrix_b, int row, int col) {
+    private static double multiplyCell(double[][] matrix_a, double[][] matrix_b, int row, int col) {
 
         double cell = 0;
         for (int i = 0; i < matrix_b.length; i++) {
-            cell += maitrix_a[row][i] * matrix_b[i][col];
+            cell += matrix_a[row][i] * matrix_b[i][col];
         }
         return cell;
     }

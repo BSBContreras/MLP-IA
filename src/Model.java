@@ -6,6 +6,7 @@ public class Model {
     private double[][] output_weight;
     private final int input_size;
     private final int hidden_size;
+    private final int output_size;
 
     public Model(Function activation, Function d_activation, double[][] hidden_weight, double[][] output_weight) {
         this.activation = activation;
@@ -13,7 +14,8 @@ public class Model {
         this.hidden_weight = hidden_weight;
         this.output_weight = output_weight;
         this.input_size = hidden_weight.length - 1;
-        this.hidden_size = output_weight.length -1;
+        this.hidden_size = output_weight.length - 1;
+        this.output_size = output_weight[0].length;
     }
 
     public void setHiddenWeight(double[][] hidden_weight) {
@@ -46,5 +48,9 @@ public class Model {
 
     public int getHiddenSize() {
         return hidden_size;
+    }
+
+    public int getOutputSize() {
+        return output_size;
     }
 }

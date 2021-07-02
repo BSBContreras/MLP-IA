@@ -150,11 +150,29 @@ class Main {
 
         return new_vector;
     }
+    public static double[][] getConfusionMatrix(double[][] dataset, Model model) {
+
+        int output_size = model.getOutputSize();
+
+        double[][] confusion_matrix = new double[output_size][output_size];
+
+        for(double[] row : dataset) {
+
+            double[] x_test = getSliceColumns(row, 0, row.length - output_size - 1);
+            double[] y_test = getSliceColumns(row, row.length - output_size, row.length - 1);
+
+            NeuronState neuron_state = MLP.forwardfeed(model, x_test);
+
+            confusion_matrix[getIndex(Matrix.vectorAsMatrixRow(y_test))][getIndex(neuron_state.getOutput())]++;
+        }
+
+        return confusion_matrix;
+    }
 
     public static void main(String[] args) {
         System.out.println("Hello MLP!");
 
-        String test_path = WITH_NOISE;
+        String test_path = WITH_NOISE_2;
 
         Function activation_function = new BipolarSigmoidFunction();
         Function derivative_activation_function = new BipolarSigmoidFunctionDerivative();
@@ -182,54 +200,8 @@ class Main {
             System.exit(0);
         }
 
-        double[][] answers_dataset;
+        double[][] confusion_matrix = getConfusionMatrix(dataset, model);
 
-        try {
-            answers_dataset = readMatrix(new BufferedReader(new FileReader(TRAIN_PATH_FILE)));
-        } catch(Exception e) {
-            System.out.println(e.getMessage());
-            answers_dataset = new double[1][70];
-            System.exit(0);
-        }
-
-        double[][] answers = Matrix.getSliceColumns(Matrix.getSliceRows(answers_dataset, 0, 7), 0, 62);
-        double accurate = 0.0;
-
-        double[][] confusion_matrix = new double[7][7];
-
-        // Modelo treiado com ABCDEJK
-        System.out.println("dataset: " + test_path);
-        for(double[] row : dataset) {
-
-            double[] x_test = getSliceColumns(row, 0, 62);
-            double[] y_test = getSliceColumns(row, 63, 69);
-
-            printCharacter(x_test);
-
-            NeuronState neuron_state = MLP.forwardfeed(model, x_test);
-            Matrix.println(neuron_state.getOutput(), "Output");
-
-            confusion_matrix[getIndex(Matrix.vectorAsMatrixRow(y_test))][getIndex(neuron_state.getOutput())]++;
-
-            if(getIndex(neuron_state.getOutput()) == getIndex(Matrix.vectorAsMatrixRow(y_test))) {
-                System.out.println("Correct!");
-                accurate += 1.0 / dataset.length;
-            } else {
-                System.out.print("Predicted: ");
-                printCharacter(answers[getIndex(neuron_state.getOutput())]);
-                System.out.println();
-
-                System.out.print("Answer: ");
-                printCharacter(answers[getIndex(Matrix.vectorAsMatrixRow(y_test))]);
-
-                System.out.println("Wrong!");
-            }
-
-            System.out.println("--------------------------------------------------------------------------------");
-        }
-
-        System.out.printf("Accurate = %3.2f%%\n", accurate * 100);
         Matrix.println(confusion_matrix, "Confusion Matrix");
-        System.out.println((int) Math.floor(accurate * dataset.length) + " corrects answers from " + dataset.length + " tests!");
-    }
+   }
 }
