@@ -10,7 +10,7 @@ class Main {
     public static final String NOISED_CHARACTERS = "./src/caracteres-ruido.csv";
     public static final String NOISED20_CHARACTERS = "./src/caracteres_ruido20.csv";
 
-    public static final String[] mapIndexToLetter = {"A", "B", "C", "D", "E", "J", "K"};
+    public static final String[] mapIndexToLetter = { "A", "B", "C", "D", "E", "J", "K" };
 
     public static void writeMatrix(double[][] matrix, BufferedWriter writer) throws IOException {
         for (double[] rows : matrix) {
@@ -85,7 +85,7 @@ class Main {
             System.out.printf("Predicted: %s | Real value: %s\n",
                     mapIndexToLetter[Main.getIndex(neuron_state.getOutput())],
                     mapIndexToLetter[Main.getIndex(Matrix.vectorAsMatrixRow(y_test[i]))]);
-            if(Main.getIndex(neuron_state.getOutput()) == Main.getIndex(Matrix.vectorAsMatrixRow(y_test[i]))) {
+            if (Main.getIndex(neuron_state.getOutput()) == Main.getIndex(Matrix.vectorAsMatrixRow(y_test[i]))) {
                 precision += 1.0 / x_test.length;
             }
         }
@@ -177,7 +177,8 @@ class Main {
     public static void main(String[] args) {
         System.out.println("Hello MLP!");
 
-        // Rodando com dados de treino sendo apenas os caraceteres limpos e teste com os caracteeres com ruído
+        // Rodando com dados de treino sendo apenas os caraceteres limpos e teste com os
+        // caracteeres com ruído
         System.out.println("Clean dataset: ");
         List<double[][]> trainAndTest = getTrainTest();
         double[][] train = trainAndTest.get(0);
@@ -185,15 +186,15 @@ class Main {
         train(train, test, 0.001, FINAL_WEIGHT_CLEAN_PATH_FILE);
         test(test, FINAL_WEIGHT_CLEAN_PATH_FILE);
 
-        // Rodando com dados de treino sendo dados misturados de todos os 3 datasets e os dados de teste também
+        // Rodando com dados de treino sendo dados misturados de todos os 3 datasets e
+        // os dados de teste também
         System.out.println("\nMixed dataset");
         List<double[][]> trainAndTestMixed = getTrainTest(true, 0.75);
-        double[][] trainMixed = trainAndTest.get(0);
-        double[][] testMixed = trainAndTest.get(1);
+        double[][] trainMixed = trainAndTestMixed.get(0);
+        double[][] testMixed = trainAndTestMixed.get(1);
         train(trainMixed, testMixed, 0.001, FINAL_WEIGHT_RANDOM_PATH_FILE);
         test(test, FINAL_WEIGHT_RANDOM_PATH_FILE);
     }
-
 
     public static List<double[][]> getTrainTest() {
         return getTrainTest(false, 0.0);
@@ -223,7 +224,7 @@ class Main {
                 shuffledDataset.addAll(Arrays.asList(noised20));
 
                 Collections.shuffle(shuffledDataset, new Random(99));
-                int trainLength = (int ) ((int)shuffledDataset.size() * trainRatio);
+                int trainLength = (int) ((int) shuffledDataset.size() * trainRatio);
                 int testLength = shuffledDataset.size() - trainLength;
 
                 train = new double[trainLength][];
