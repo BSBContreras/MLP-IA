@@ -4,6 +4,8 @@ import java.util.*;
 class Main {
     public static final String FINAL_WEIGHT_CLEAN_PATH_FILE = "./src/pesos-modelo-limpo-final.txt";
     public static final String FINAL_WEIGHT_RANDOM_PATH_FILE = "./src/pesos-modelo-aleatorio-final.txt";
+    public static final String FINAL_WEIGHT_CLEAN_VALIDATION_PATH_FILE = "./src/pesos-modelo-limpo-validation-final.txt";
+    public static final String FINAL_WEIGHT_RANDOM_VALIDATION_PATH_FILE = "./src/pesos-modelo-aleatorio-validation-final.txt";
     public static final String BEGIN_WEIGHT_PATH_FILE = "./src/pesos-modelo-inicio";
 
     public static final String CLEAN_CHARACTERS = "./src/caracteres-limpo.csv";
@@ -92,7 +94,7 @@ class Main {
         System.out.printf("Teste Set Precision = %3.2f%%\n", precision * 100);
     }
 
-    public static void train(double[][] dataset, double[][] test, double threshold, String weightsFilePath) {
+    public static void train(double[][] dataset, double[][] test, double threshold, boolean useValidation, String weightsFilePath) {
         Function activation_function = new BipolarSigmoidFunction();
         Function derivative_activation_function = new BipolarSigmoidFunctionDerivative();
 
@@ -118,7 +120,7 @@ class Main {
             System.out.println(e.getMessage());
         }
 
-        MLP.backpropagation(model, dataset, 0.1, threshold);
+        MLP.backpropagation(model, dataset, 0.1, threshold, useValidation);
         Matrix.println(getConfusionMatrix(test, model));
 
         try {
@@ -183,8 +185,12 @@ class Main {
         List<double[][]> trainAndTest = getTrainTest();
         double[][] train = trainAndTest.get(0);
         double[][] test = trainAndTest.get(1);
-        train(train, test, 0.001, FINAL_WEIGHT_CLEAN_PATH_FILE);
+        System.out.println("Clean without validation and early stopping: ");
+        train(train, test, 0.001, false, FINAL_WEIGHT_CLEAN_PATH_FILE);
         test(test, FINAL_WEIGHT_CLEAN_PATH_FILE);
+        System.out.println("Clean with validation and early stopping: ");
+        train(train, test, 0.001, true, FINAL_WEIGHT_CLEAN_VALIDATION_PATH_FILE);
+        test(test, FINAL_WEIGHT_CLEAN_VALIDATION_PATH_FILE);
 
         // Rodando com dados de treino sendo dados misturados de todos os 3 datasets e
         // os dados de teste também
@@ -192,8 +198,12 @@ class Main {
         List<double[][]> trainAndTestMixed = getTrainTest(true, 0.75);
         double[][] trainMixed = trainAndTestMixed.get(0);
         double[][] testMixed = trainAndTestMixed.get(1);
-        train(trainMixed, testMixed, 0.001, FINAL_WEIGHT_RANDOM_PATH_FILE);
+        System.out.println("Mixed without validation and early stopping: ");
+        train(trainMixed, testMixed, 0.001,false, FINAL_WEIGHT_RANDOM_PATH_FILE);
         test(test, FINAL_WEIGHT_RANDOM_PATH_FILE);
+        System.out.println("Mixed with validation and early stopping: ");
+        train(trainMixed, testMixed, 0.001,true, FINAL_WEIGHT_RANDOM_VALIDATION_PATH_FILE);
+        test(test, FINAL_WEIGHT_RANDOM_VALIDATION_PATH_FILE);
     }
 
     public static List<double[][]> getTrainTest() {

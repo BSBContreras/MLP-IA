@@ -66,11 +66,15 @@ public class MLP {
         return new NeuronState(hidden_network_before, hidden_network, output_network_before, output_network);
     }
 
-    public static void backpropagation(Model model, double[][] dataset, double eta, double threshold) {
+    public static void backpropagation(Model model, double[][] dataset, double eta, double threshold, boolean useValidation) {
         // Separa o dataset em 2 partes: Treino e validação
         List<double[][]> trainValidation = splitTrainValidation(dataset);
         double[][] train = trainValidation.get(0);
         double[][] validation = trainValidation.get(1);
+
+        if (useValidation) {
+            train = dataset;
+        }
 
         int num_dataset_rows = train.length;
         int num_dataset_columns = train[0].length;
@@ -207,14 +211,16 @@ public class MLP {
             System.out.printf("Epoch = %d", counter);
             System.out.printf(", Squared Error = %.6f", squared_error);
             System.out.printf(", Precision = %3.2f%%", precision * 100);
-            System.out.printf(", Validation Squared Error: %.6f\n", validationSquaredError);
+            if (useValidation) System.out.printf(", Validation Squared Error: %.6f\n", validationSquaredError);
+            else System.out.println();
             counter++;
 
             if (validationSquaredError > validationMinSquaredError) {
                 System.out.println("Parada antecipada!");
                 break;
             }
-            validationMinSquaredError = validationSquaredError;
+            if (useValidation)
+                validationMinSquaredError = validationSquaredError;
         }
     }
 
