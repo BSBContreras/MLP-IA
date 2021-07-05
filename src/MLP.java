@@ -1,3 +1,5 @@
+import java.util.*;
+
 public class MLP {
 
     // Primeiro Passo
@@ -65,35 +67,44 @@ public class MLP {
     }
 
     public static void backpropagation(Model model, double[][] dataset, double eta, double threshold) {
+        // Separa o dataset em 2 partes: Treino e validação
+        List<double[][]> trainValidation = splitTrainValidation(dataset);
+        double[][] train = trainValidation.get(0);
+        double[][] validation = trainValidation.get(1);
 
-        int num_dataset_rows = dataset.length;
-        int num_dataset_columns = dataset[0].length;
+        int num_dataset_rows = train.length;
+        int num_dataset_columns = train[0].length;
 
         double squared_error = 2 * threshold;
-        double accurate = 0;
+        double validationMinSquaredError = Double.MAX_VALUE;
+        double precision = 0;
         int counter = 0;
+
+        // Separa o conjunto de validação em features e label
+        double[][] x_validation = Matrix.getSliceColumns(validation, 0, model.getInputSize() - 1);
+        double[][] y_validation = Matrix.getSliceColumns(validation, model.getInputSize(), num_dataset_columns - 1);
 
         // Definindo conjunto de treinamento
 //        System.out.println("\n -> Definindo conjunto de treinamento");
-        double[][] x_train = Matrix.getSliceColumns(dataset, 0, model.getInputSize() - 1);
+        double[][] x_train = Matrix.getSliceColumns(train, 0, model.getInputSize() - 1);
 //        Matrix.println(x_train, "x_train");
 
         // Definindo conjunto target
 //        System.out.println("\n -> Definindo conjunto target");
-        double[][] y_train = Matrix.getSliceColumns(dataset, model.getInputSize(), num_dataset_columns - 1);
+        double[][] y_train = Matrix.getSliceColumns(train, model.getInputSize(), num_dataset_columns - 1);
 //        Matrix.println(y_train, "y_train");
 
         // Condicao de parada
         while(squared_error > threshold) {
             squared_error = 0.0;
-            accurate = 0.0;
+            precision = 0.0;
 
             for(int i = 0; i < num_dataset_rows; i++) {
 
                 NeuronState neuron_state = forwardfeed(model, x_train[i]);
 
                 if(Main.getIndex(neuron_state.getOutput()) == Main.getIndex(Matrix.vectorAsMatrixRow(y_train[i]))) {
-                    accurate += 1.0 / num_dataset_rows;
+                    precision += 1.0 / num_dataset_rows;
                 }
 
                 // Calculando erro
@@ -182,13 +193,50 @@ public class MLP {
 //                Matrix.println(model.getHiddenWeigth(), "model.getHiddenWeigth()");
             }
 
+            // Ao fim de cada época, calcular a acuracia do modelo no conjunto de validação
+
+            double validationSquaredError = 0.0;
+            for (int i = 0; i < x_validation.length; i++) {
+                NeuronState neuron_state = forwardfeed(model, x_validation[i]);
+                double[][] error = Matrix.minus(Matrix.vectorAsMatrixRow(y_validation[i]), neuron_state.getOutput());
+                validationSquaredError += Matrix.internalSum(Matrix.internalExp(error, 2));
+            }
 //            System.out.println("\n -> Calculando erro medio quadrado");
             squared_error = squared_error / num_dataset_rows;
 //            System.out.println("squared_error");
             System.out.printf("Epoch = %d", counter);
             System.out.printf(", Squared Error = %.6f", squared_error);
-            System.out.printf(", Accurate = %3.2f%%\n", accurate * 100);
+            System.out.printf(", Precision = %3.2f%%", precision * 100);
+            System.out.printf(", Validation Squared Error: %.6f\n", validationSquaredError);
             counter++;
+
+            if (validationSquaredError > validationMinSquaredError) {
+                System.out.println("Parada antecipada!");
+                break;
+            }
+            validationMinSquaredError = validationSquaredError;
         }
+    }
+
+    public static List<double[][]> splitTrainValidation(double[][] dataset) {
+        // A ideia é pegar 1 letra para cada conjunto de 7(letras possiveis) dentro do conjunto de teste.
+        int validationLength = (int) ((int) dataset.length * 0.3);
+        int testLength = dataset.length - validationLength;
+
+        double[][] validation = new double[validationLength][];
+        double[][] test = new double[testLength][];
+
+        List<double[]> shuffledDataset = new ArrayList<>(Arrays.asList(dataset));
+        Collections.shuffle(shuffledDataset, new Random(99));
+
+        for (int i = 0; i < validationLength; i++) {
+            validation[i] = shuffledDataset.get(i);
+        }
+
+        for (int i = 0; i < testLength; i++) {
+            test[i] = shuffledDataset.get(validationLength+i);
+        }
+
+        return Arrays.asList(test, validation);
     }
 }

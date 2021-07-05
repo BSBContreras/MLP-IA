@@ -197,4 +197,11 @@ public class Matrix {
         System.out.println(name + " | num_rows: " + matrix.length + ", num_columns: " + matrix[0].length);
         println(matrix);
     }
+
+    public static int argMax(double[] vector) {
+        int max = 0;
+        for (int i = 0; i < vector.length; i++)
+            max = vector[max] < vector[i] ? i : max;
+        return max;
+    }
 }
