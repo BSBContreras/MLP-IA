@@ -96,7 +96,7 @@ class Main {
         Function activation_function = new BipolarSigmoidFunction();
         Function derivative_activation_function = new BipolarSigmoidFunctionDerivative();
 
-        Model model = MLP.architecture(63, 49, 7, activation_function, derivative_activation_function);
+        Model model = MLP.architecture(63, 30, 7, activation_function, derivative_activation_function);
 
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(BEGIN_WEIGHT_PATH_FILE));
