@@ -200,10 +200,10 @@ class Main {
         double[][] testMixed = trainAndTestMixed.get(1);
         System.out.println("Mixed without validation and early stopping: ");
         train(trainMixed, testMixed, 0.001,false, FINAL_WEIGHT_RANDOM_PATH_FILE);
-        test(test, FINAL_WEIGHT_RANDOM_PATH_FILE);
+        test(testMixed, FINAL_WEIGHT_RANDOM_PATH_FILE);
         System.out.println("Mixed with validation and early stopping: ");
         train(trainMixed, testMixed, 0.001,true, FINAL_WEIGHT_RANDOM_VALIDATION_PATH_FILE);
-        test(test, FINAL_WEIGHT_RANDOM_VALIDATION_PATH_FILE);
+        test(testMixed, FINAL_WEIGHT_RANDOM_VALIDATION_PATH_FILE);
     }
 
     public static List<double[][]> getTrainTest() {
